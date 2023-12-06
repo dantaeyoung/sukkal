@@ -15,7 +15,7 @@ Sukkal is an ongoing experiment in enabling you to talk to yourself.
 
 By pressing and holding different keys on the keyboard, you can record audio notes, playback, and listen to yourself. An OpenAI api key allows for near-instant transcription of your conversation.
 
-The intention of Sukkal is to enable 'parts work'-esque interlocution with one's self.
+The intention of Sukkal is to enable 'parts work' -- IFS-seque interlocution with one's self.
 
 ---
 
