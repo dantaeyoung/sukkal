@@ -63,10 +63,6 @@ def get_audio(audio_id):
 def index():
     return render_template('index.html')
 
-@app.route('/test')
-def testindex():
-    return render_template('testindex.html')
-
 
 if __name__ == '__main__':
     with app.app_context():
