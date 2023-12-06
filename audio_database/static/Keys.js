@@ -45,7 +45,9 @@ Keys.heldDown = function(key) {
 Keys.tapped = function(key) {
     console.log(key + " key tapped.");
     var lastr = Recorder.getLastRecording(key);
-    document.getElementById(lastr.id).play()
+    const lastAudio = document.getElementById(lastr.id);
+    lastAudio.play()
+
 }
 
 Keys.released = function(key) {

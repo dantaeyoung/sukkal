@@ -1,0 +1,121 @@
+
+body {
+  font-family: 'Quintessential', serif;
+  padding: 30px;
+}
+
+#recordingborder {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  pointer-events: none;
+  border: 10px solid white;
+  transition: border-color 1s;
+}
+
+.recording #recordingborder {
+  border-color: rgb(255, 100, 100);
+  transition-duration: 0.2s;
+}
+
+header {
+  display: flex;
+    align-items: center;
+}
+
+header h1 {
+  margin-left: 40px;
+}
+
+#openai_api_key {
+      height: 20px;
+    margin: 30px;
+    width: 200px;
+    border-radius: 20px;
+    border: 1px solid gray;
+    padding: 5px 10px;
+}
+
+canvas.visualizer {
+  border-radius: 55px;
+  border: 5px solid black;
+  transition: border-color 1s;
+}
+.recording canvas.visualizer {
+  border-color: rgb(255, 100, 100);
+  transition-duration: 0.2s;
+}
+
+section.main-controls {
+    position: fixed;
+    top: 40px;
+    right: 40px;
+    display: flex;
+    flex-direction: row-reverse;
+    z-index: 100;
+}
+
+.key-display {
+    text-align: right;
+    font-size: 3em;
+    display: flex;
+    align-items: center;
+    padding-bottom: 0.2em;
+    margin-right: 10px;
+    transition: opacity 1s, color 1s;
+    opacity: 0;
+}
+
+.recording .key-display {
+  opacity: 1;
+  color: rgb(255, 100, 100);
+  transition-duration: 0.2s;
+}
+
+#buttons {
+  display: none;
+}
+
+.clip {
+  background-color: gray;
+  padding: 15px;
+  border-radius: 20px;
+  border: 5px solid black;
+  transition: border-color 1s, background-color 1s;
+  margin: 10px 0px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.clip button {
+  display: none;
+}
+
+.clip .key {
+  font-size: 3em;
+  padding-bottom: 0.1em;
+  margin-right: 30px;
+  margin-left: 10px;
+  transition: color 1s;
+}
+
+.clip .transcript {
+  width: 60%;
+}
+
+.clip.playing {
+  border-color: rgb(50, 200, 50) !important;
+  transition-duration: 0.2s;
+}
+
+.clip.playing .key {
+  color: rgb(50, 200, 50) !important;
+  transition-duration: 0.2s;
+}
+
+audio {
+  width: 150px;
+}

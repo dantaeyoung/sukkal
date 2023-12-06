@@ -4,18 +4,32 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <title>s u k k a l</title>
-    <link href="styles/app.css" rel="stylesheet" type="text/css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quintessential&display=swap" rel="stylesheet">
+    <link href="{{url_for('static', filename='app.css')}}" rel="stylesheet" type="text/css">
   </head>
   <body>
+    <div id="recordingborder"></div>
 
     <div class="wrapper">
 
       <header>
         <h1>s u k k a l : self-interlocution</h1>
+        <input type="text" id="openai_api_key" placeholder="openai api key">
       </header>
 
+      <section class="instructions">
+        1. each key is a part.
+        2. press and hold any key (e.g. 'a') to record audio as that part.
+        3. tap that key to play back the most recent recorded audio.
+        4. a valid openai api key allows transcription.
+
+      </section>
+
       <section class="main-controls">
-        <canvas class="visualizer" height="60px"></canvas>
+        <canvas class="visualizer" height="100px" width="100px"></canvas>
+        <div class="key-display"></div>
         <div id="buttons">
           <button class="record">Record</button>
           <button class="stop">Stop</button>
@@ -30,8 +44,11 @@
     </div>
 
     <script src="{{url_for('static', filename='jquery-3.7.1.min.js')}}"></script>
+    <script src="{{url_for('static', filename='Helpers.js')}}"></script>
+    <script src="{{url_for('static', filename='Openai.js')}}"></script>
     <script src="{{url_for('static', filename='Recorder.js')}}"></script>
     <script src="{{url_for('static', filename='Keys.js')}}"></script>
+    <script src="{{url_for('static', filename='App.js')}}"></script>
 
   </body>
 </html>

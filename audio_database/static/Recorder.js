@@ -2,6 +2,7 @@ var Recorder = {}
 
 Recorder.recordingKey = "";
 Recorder.records = [];
+Recorder.audioData = {};
 
 
 const record = document.querySelector('.record');
@@ -9,6 +10,7 @@ const stop = document.querySelector('.stop');
 const soundClips = document.querySelector('.sound-clips');
 const canvas = document.querySelector('.visualizer');
 const mainSection = document.querySelector('.main-controls');
+const keyDisplay = document.querySelector('.key-display');
 
 // disable stop button while not recording
 
@@ -33,11 +35,13 @@ if (navigator.mediaDevices.getUserMedia) {
     visualize(stream);
 
     var startRecord = function(key) {
+      mediaRecorder.stop();
       Recorder.recordingKey = key;
+      keyDisplay.textContent = key;
       mediaRecorder.start();
       console.log(mediaRecorder.state);
       console.log("recorder started");
-      record.style.background = "red";
+      document.body.classList.add("recording");
 
       stop.disabled = false;
       record.disabled = true;
@@ -47,9 +51,9 @@ if (navigator.mediaDevices.getUserMedia) {
 
 
     var stopRecord = function(key) {
+//      keyDisplay.textContent = "";
       mediaRecorder.stop();
-      record.style.background = "";
-      record.style.color = "";
+      document.body.classList.remove("recording");
       // mediaRecorder.requestData();
 
       stop.disabled = true;
@@ -59,10 +63,15 @@ if (navigator.mediaDevices.getUserMedia) {
     Recorder.stopRecord = stopRecord;
 
     mediaRecorder.onstop = function(e) {
+
+      const rkey = Recorder.recordingKey;
+
       console.log("data available after MediaRecorder.stop() called.");
 
-      const clipContainer = document.createElement('article');
-      const clipLabel = document.createElement('p');
+      const clipContainer = document.createElement('div');
+      const clipKey = document.createElement('div');
+      const clipLabel = document.createElement('div');
+      const clipTranscript= document.createElement('div');
       const audio = document.createElement('audio');
       const deleteButton = document.createElement('button');
 
@@ -75,33 +84,71 @@ if (navigator.mediaDevices.getUserMedia) {
       
       var timestamp = Date.now();
       var audioid = "";
-      if(Recorder.recordingKey === "") {
+      if(rkey === "") {
         audioid = timestamp;
       } else {
         audioid = Recorder.recordingKey + "--" + timestamp;
       }
 
-      audio.id = audioid;
-      clipLabel.textContent = audioid;
+      clipKey.classList.add("key")
+      clipKey.textContent = rkey;
+
+      clipLabel.classList.add("label")
+      clipLabel.textContent = Helpers.format12HourTime(timestamp);
       
-      Recorder.records.push({ id: audioid, key: Recorder.recordingKey, ts: timestamp })
+      clipTranscript.classList.add("transcript")
+
+      Recorder.records.push({ id: audioid, key: rkey, ts: timestamp })
       
-      Recorder.recordingKey = "";
+
+      const pastelColor = Helpers.strToPastelHsl(rkey);
+
+      clipContainer.style.backgroundColor = pastelColor;
 
       
       /////
 
-      clipContainer.appendChild(audio);
+      audio.id = audioid;
+      clipContainer.classList.add(rkey);
+      clipContainer.classList.add(audioid);
+      clipContainer.appendChild(clipKey);
       clipContainer.appendChild(clipLabel);
+      clipContainer.appendChild(clipTranscript);
+      clipContainer.appendChild(audio);
       clipContainer.appendChild(deleteButton);
       soundClips.appendChild(clipContainer);
 
+      window.scroll({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+      });
+
       audio.controls = true;
-      const blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
+      //const blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
+      const blob = new Blob(chunks, { 'type' : 'audio/wav' });
       chunks = [];
       const audioURL = window.URL.createObjectURL(blob);
       audio.src = audioURL;
+
+//      Recorder.audioData[audioid] = blob;
+
+      Openai.transcribe(blob, function(text) {
+        clipTranscript.textContent = text;
+      });
+     
+
+      audio.onplay = function() {
+        const clipelem = document.querySelector('.clip.' + audio.id);
+        clipelem.classList.add('playing');
+      }
+      audio.onended = function() {
+        const clipelem = document.querySelector('.clip.' + audio.id);
+        clipelem.classList.remove('playing');
+      }
+
       console.log("recorder stopped");
+
+      Recorder.recordingKey = "";
 
       deleteButton.onclick = function(e) {
         e.target.closest(".clip").remove();
@@ -132,7 +179,7 @@ function visualize(stream) {
   const source = audioCtx.createMediaStreamSource(stream);
 
   const analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 2048;
+  analyser.fftSize = 512;
   const bufferLength = analyser.frequencyBinCount;
   const dataArray = new Uint8Array(bufferLength);
 
@@ -149,7 +196,7 @@ function visualize(stream) {
 
     analyser.getByteTimeDomainData(dataArray);
 
-    canvasCtx.fillStyle = 'rgb(200, 200, 200)';
+    canvasCtx.fillStyle = 'rgb(255, 255, 255)';
     canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
     canvasCtx.lineWidth = 2;
@@ -180,12 +227,6 @@ function visualize(stream) {
 
   }
 }
-
-window.onresize = function() {
-  canvas.width = mainSection.offsetWidth;
-}
-
-window.onresize();
 
 
 Recorder.getLastRecording = function(key) {
