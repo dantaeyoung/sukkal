@@ -1,4 +1,8 @@
-// set up basic variables for app
+var Recorder = {}
+
+Recorder.recordingKey = "";
+Recorder.records = [];
+
 
 const record = document.querySelector('.record');
 const stop = document.querySelector('.stop');
@@ -29,6 +33,7 @@ if (navigator.mediaDevices.getUserMedia) {
     visualize(stream);
 
     var startRecord = function(key) {
+      Recorder.recordingKey = key;
       mediaRecorder.start();
       console.log(mediaRecorder.state);
       console.log("recorder started");
@@ -38,11 +43,11 @@ if (navigator.mediaDevices.getUserMedia) {
       record.disabled = true;
     }
     record.onclick = startRecord;
+    Recorder.startRecord = startRecord;
 
-    var stopRecord = function() {
+
+    var stopRecord = function(key) {
       mediaRecorder.stop();
-      console.log(mediaRecorder.state);
-      console.log("recorder stopped");
       record.style.background = "";
       record.style.color = "";
       // mediaRecorder.requestData();
@@ -51,11 +56,10 @@ if (navigator.mediaDevices.getUserMedia) {
       record.disabled = false;
     }
     stop.onclick = stopRecord
+    Recorder.stopRecord = stopRecord;
 
     mediaRecorder.onstop = function(e) {
       console.log("data available after MediaRecorder.stop() called.");
-
-      const clipName = prompt('Enter a name for your sound clip?','My unnamed clip');
 
       const clipContainer = document.createElement('article');
       const clipLabel = document.createElement('p');
@@ -67,11 +71,25 @@ if (navigator.mediaDevices.getUserMedia) {
       deleteButton.textContent = 'Delete';
       deleteButton.className = 'delete';
 
-      if(clipName === null) {
-        clipLabel.textContent = 'My unnamed clip';
+      /////
+      
+      var timestamp = Date.now();
+      var audioid = "";
+      if(Recorder.recordingKey === "") {
+        audioid = timestamp;
       } else {
-        clipLabel.textContent = clipName;
+        audioid = Recorder.recordingKey + "--" + timestamp;
       }
+
+      audio.id = audioid;
+      clipLabel.textContent = audioid;
+      
+      Recorder.records.push({ id: audioid, key: Recorder.recordingKey, ts: timestamp })
+      
+      Recorder.recordingKey = "";
+
+      
+      /////
 
       clipContainer.appendChild(audio);
       clipContainer.appendChild(clipLabel);
@@ -89,15 +107,6 @@ if (navigator.mediaDevices.getUserMedia) {
         e.target.closest(".clip").remove();
       }
 
-      clipLabel.onclick = function() {
-        const existingName = clipLabel.textContent;
-        const newClipName = prompt('Enter a new name for your sound clip?');
-        if(newClipName === null) {
-          clipLabel.textContent = existingName;
-        } else {
-          clipLabel.textContent = newClipName;
-        }
-      }
     }
 
     mediaRecorder.ondataavailable = function(e) {
@@ -177,3 +186,18 @@ window.onresize = function() {
 }
 
 window.onresize();
+
+
+Recorder.getLastRecording = function(key) {
+  // Filter records by the specified key
+  const filteredRecords = Recorder.records.filter(record => record.key === key);
+
+  // Sort the filtered records by timestamp in descending order
+  filteredRecords.sort((a, b) => b.ts - a.ts);
+
+  // Return the most recent record or null if no matching records are found
+  return filteredRecords.length > 0 ? filteredRecords[0] : null;
+}
+
+
+
